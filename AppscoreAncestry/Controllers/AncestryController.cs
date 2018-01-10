@@ -28,27 +28,20 @@ namespace AppscoreAncestry.Controllers
 
             string searchKey = key.ToUpper();
 
-            IEnumerable<Person> selected;
             try
             {
                 IEnumerable<Person> people = DataStore.Instance.People;
-                if (string.IsNullOrEmpty(genderKey))
-                {
-                    selected = (from p in people
-                                where p.name.ToUpper().Contains(searchKey)
-                                select p);
-                }
-                else
-                {
-                    selected = (from p in people
-                                where p.name.ToUpper().Contains(searchKey) && p.gender == genderKey
-                                select p);
-                }
+
+                IEnumerable<Person> selected = (from p in people
+                            where p.name.ToUpper().Contains(searchKey) && (string.IsNullOrEmpty(genderKey) || p.gender == genderKey)
+                            select p);
+
                 if (selected.Count() > 0)
                 {
-                    var page = selected.Skip(10 * (pageRequired - 1)).Take(10); // only returns the first ten entries - TODO implement paging
+                    var page = selected.Skip(10 * (pageRequired - 1)).Take(10); // only returns the first ten entries
 
-                    return Ok(new {
+                    return Ok(new
+                    {
                         people = page.Select(p => new { id = p.id, name = p.name, gender = p.gender == "M" ? "Male" : "Female", birthplace = place_of_birth(p.place_id) }),
                         page = pageRequired,
                         total_pages = (selected.Count() + 9) / 10
@@ -57,12 +50,93 @@ namespace AppscoreAncestry.Controllers
                 else
                     return NotFound();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return NotFound();
             }
-            
         }
+
+        // GET: api/ancestry/search
+        [HttpGet]
+        [Route("api/ancestry/advancedsearch")]
+        public IHttpActionResult advancedSearch(string key, bool male = false, bool female = false, bool directionAncestors=true)
+        {
+            if (string.IsNullOrEmpty(key))
+                return NotFound();
+
+            string genderKey = "";
+            if (male && !female)
+                genderKey = "M";
+            else if (!male && female)
+                genderKey = "F";
+
+            string searchKey = key.ToUpper();
+            List<Person> selected = new List<Person>();
+            try
+            {
+                IEnumerable<Person> people = DataStore.Instance.People;
+                Person searchPerson = people.FirstOrDefault(p => p.name.Equals(searchKey, StringComparison.CurrentCultureIgnoreCase) &&
+                    (string.IsNullOrEmpty(genderKey) || p.gender == genderKey));
+                
+                if (searchPerson !=  null)
+                {
+                    if(directionAncestors)
+                    {
+                        List<Person> currentSerchList = new List<Person>();
+                        currentSerchList.Add(searchPerson);
+                        
+
+                        while (selected.Count < 10)
+                        {
+                            List<Person> nextSerchList = new List<Person>();
+                            foreach (Person sp in currentSerchList)
+                            {
+                                if (sp.father_id != null)
+                                {
+                                    Person father = people.FirstOrDefault(p => p.id == sp.father_id);
+                                    if (father != null)
+                                    {
+                                        selected.Add(father);
+                                        nextSerchList.Add(father);
+                                    }
+                                }
+
+                                if (selected.Count > 9)
+                                    break;
+
+                                if (sp.mother_id != null)
+                                {
+                                    Person mother = people.FirstOrDefault(p => p.id == sp.mother_id);
+                                    if (mother != null)
+                                    {
+                                        selected.Add(mother);
+                                        nextSerchList.Add(mother);
+                                    }
+                                }
+                                if (selected.Count > 9)
+                                    break;
+                            }
+
+                            currentSerchList = nextSerchList;
+                        }
+                    }
+                    else // Descendent search
+                    {
+
+                    }
+
+                    return Ok(selected.Select(p => new { id = p.id, name = p.name, gender = p.gender == "M" ? "Male" : "Female", birthplace = place_of_birth(p.place_id) }));
+                }
+                else
+                    return NotFound();
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
+
+        }
+
 
         private string place_of_birth(int id)
         {

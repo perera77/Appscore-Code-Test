@@ -20,10 +20,17 @@ namespace AppscoreAncestry.Tests.Controllers
             AncestryController controller = new AncestryController();
 
             // Act
-            IHttpActionResult result = controller.searchPeople("");
+            IHttpActionResult result = controller.searchPeople("Mill");
 
             // Assert
             Assert.IsNotNull(result);
+
+            // Act
+            result = controller.advancedSearch("Caitlin Millisent", female: true, directionAncestors: true );
+
+            // Assert
+            Assert.IsNotNull(result);
+
         }
 
        

@@ -1,4 +1,5 @@
 ﻿using AppscoreAncestry.Models;
+using System;
 using System.Collections.Generic;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -21,10 +22,18 @@ namespace AppscoreAncestry.DataLayer
             string small_file = HttpContext.Current.Server.MapPath(@"~\App_Data\data_small.json");
             string large_file = HttpContext.Current.Server.MapPath(@"~\App_Data\data_large.json");
 
-            // deserialize JSON from file
-            string Json = System.IO.File.ReadAllText(small_file);
-            JavaScriptSerializer ser = new JavaScriptSerializer();
-            dataset = ser.Deserialize<DataSet>(Json);
+            try
+            {
+                // deserialize JSON from file
+                string Json = System.IO.File.ReadAllText(small_file);
+                JavaScriptSerializer ser = new JavaScriptSerializer();
+                ser.MaxJsonLength = int.MaxValue;
+                dataset = ser.Deserialize<DataSet>(Json);
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         public IEnumerable<Person> People
