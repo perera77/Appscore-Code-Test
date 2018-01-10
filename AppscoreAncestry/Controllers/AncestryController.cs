@@ -85,7 +85,6 @@ namespace AppscoreAncestry.Controllers
                         List<Person> currentSerchList = new List<Person>();
                         currentSerchList.Add(searchPerson);
                         
-
                         while (selected.Count < 10)
                         {
                             List<Person> nextSerchList = new List<Person>();
@@ -122,7 +121,36 @@ namespace AppscoreAncestry.Controllers
                     }
                     else // Descendent search
                     {
+                        List<Person> currentSerchList = new List<Person>();
+                        currentSerchList.Add(searchPerson);
 
+                        while (selected.Count < 10 && currentSerchList.Count > 0)
+                        {
+                            List<Person> nextSerchList = new List<Person>();
+                            foreach (Person sp in currentSerchList)
+                            {
+                                IEnumerable<Person> directDescendents;
+                                if (sp.gender == "M")
+                                {
+                                    directDescendents = people.Where(p => p.father_id != null && p.father_id == sp.id);
+                                }
+                                else
+                                {
+                                    directDescendents = people.Where(p => p.mother_id != null && p.mother_id == sp.id);
+                                }
+
+                                foreach (Person p in directDescendents)
+                                {
+                                    selected.Add(p);
+                                    nextSerchList.Add(p);
+                                }
+                                
+                                if (selected.Count > 9)
+                                    break;
+                            }
+
+                            currentSerchList = nextSerchList;
+                        }
                     }
 
                     return Ok(selected.Select(p => new { id = p.id, name = p.name, gender = p.gender == "M" ? "Male" : "Female", birthplace = place_of_birth(p.place_id) }));
