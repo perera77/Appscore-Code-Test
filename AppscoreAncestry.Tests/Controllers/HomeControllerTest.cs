@@ -19,7 +19,21 @@ namespace AppscoreAncestry.Tests.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual("Home Page", result.ViewBag.Title);
+            Assert.AreEqual("Simple Search", result.ViewBag.Title);
+        }
+
+        [TestMethod]
+        public void AdvancedSearch()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
+
+            // Act
+            ViewResult result = controller.advancedSearch() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            //Assert.AreEqual("Simple Search", result.ViewBag.Title);
         }
     }
 }

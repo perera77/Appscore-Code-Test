@@ -14,5 +14,12 @@ namespace AppscoreAncestry.Controllers
 
             return View();
         }
+
+        public ActionResult advancedSearch()
+        {
+            ViewBag.Title = "Advanced Search";
+
+            return View();
+        }
     }
 }

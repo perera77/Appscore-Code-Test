@@ -25,11 +25,27 @@
             </div>
         </div>
     </div>
+
     <div class="container body-content">
+        <div class="jumbotron" style="background-color:  aquamarine">
+            <h1>appscore Ancestry</h1>
+        </div>
+
         @RenderBody()
+
+        <br />
+        <br />
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Appcore Ancestry Application</p>
+            <div class="row">
+                <div class="col-sm-4">&copy; @DateTime.Now.Year - Appscore Ancestry Application</div>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4">
+                    <p><b>CONTACT</b></p>
+                    <p><span class="glyphicon glyphicon-phone"></span>&nbsp;&nbsp;+61 409 411 199</p>
+                    <p><span class="glyphicon glyphicon-envelope"></span>&nbsp;&nbsp;suraj.perera@tpg.com.au</p>
+                </div>
+            </div>
         </footer>
     </div>
 
