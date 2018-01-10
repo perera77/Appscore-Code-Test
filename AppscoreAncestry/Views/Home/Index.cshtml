@@ -29,6 +29,7 @@
         </thead>
         <tbody id="result"></tbody>
     </table>
+    <button id="nextPage" hidden>Next Page ..</button>
 </div>
 
 
@@ -40,20 +41,34 @@
             var nameKey = $("#nameKey").val();
             var genderMale = $("#maleChkBx").is(":checked");
             var genderFemale = $("#femaleChkBx").is(":checked");
-            $.getJSON("api/ancestry/search",
-                { key: nameKey, male: genderMale, female: genderFemale },
+            _simple_search(nameKey, genderMale, genderFemale, 1)
+        }
+
+        function _simple_search(nameKey, genderMale, genderFemale, page) {
+
+            $.getJSON("/api/ancestry/search",
+                { key: nameKey, male: genderMale, female: genderFemale, pageRequired: page },
                 function (data, status) {
                     $("#result").empty(); // clear the existing table body
                     
-                        $.each(data, function (key, val) {
+                        $.each(data.people, function (key, val) {
                             var row = '<td>' + val.id + '</td><td>' + val.name + '</td><td>' + val.gender + '</td><td>' + val.birthplace + '</td>';
                             $('<tr/>', { html: row })  // Append the name.
                                 .appendTo($('#result'));
-                        });
+                    });
+                        if (data.page < data.total_pages) {
+                            $("#nextPage").attr("onclick", "_simple_search('" + nameKey +"', '" + genderMale +"', '" + genderFemale +"', '" + (page+1) + "')");
+                            $("#nextPage").show();
+                        }
+                        else {
+                            $("#nextPage").hide();
+                        }
+                    
                         $("#result_section").show();
                 });
             
         }
+
 
         function advancedSearch() {
             location.href = "home/advancedSearch";
